@@ -3,13 +3,49 @@ package main
 import "fmt"
 
 func main() {
-	transactions := [5]int{1, 2, 3, 4, 5}
-	transactionsPartial := transactions[1:]
-	transactionsPartialNew := transactions[:1]
 
-	transactionsPartial[0] = 30
-	fmt.Println(transactions)
-	fmt.Println(len(transactionsPartial), cap(transactionsPartial))
-	fmt.Println(transactionsPartialNew)
-	fmt.Println(len(transactionsPartialNew), cap(transactionsPartialNew))
+	transactions := []float64{}
+
+	for {
+
+		inputTransaction(&transactions)
+
+		printCalculatedTransactions(transactions)
+
+		fmt.Println("Вы хотите продолжить? (y/n)")
+		var continueInput string
+		fmt.Scanln(&continueInput)
+
+		if continueInput == "y" || continueInput == "Y" {
+			continue
+		} else {
+			break
+		}
+	}
+}
+
+func inputTransaction(transactions *[]float64) {
+	var inputTransaction float64
+
+	for {
+		fmt.Println("Введите вашу транзакцию: ")
+		fmt.Scanln(&inputTransaction)
+
+		if inputTransaction < 0 {
+			fmt.Println("Транзакция не может быть отрицательной!")
+			continue
+		}
+		break
+	}
+
+	*transactions = append(*transactions, inputTransaction)
+}
+
+func printCalculatedTransactions(transactions []float64) {
+	balance := 0.0
+
+	for _, value := range transactions {
+		balance += value
+		fmt.Println(balance)
+	}
 }
