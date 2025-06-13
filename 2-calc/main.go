@@ -18,7 +18,7 @@ func main() {
 			continue
 		}
 
-		result := calculateOperation(operation, numbers)
+		result := calculateOperation(operation, &numbers)
 		fmt.Println("Результат:", result)
 
 		fmt.Println("Вы хотите продолжить? (y/n)")
@@ -62,28 +62,28 @@ func intInput() []int {
 	return numbers
 }
 
-func sum(numbers []int) int {
+func sum(numbers *[]int) int {
 	total := 0
-	for _, n := range numbers {
+	for _, n := range *numbers {
 		total += n
 	}
 	return total
 }
 
-func average(numbers []int) int {
-	if len(numbers) == 0 {
+func average(numbers *[]int) int {
+	if len(*numbers) == 0 {
 		return 0
 	}
-	return sum(numbers) / len(numbers)
+	return sum(numbers) / len(*numbers)
 }
 
-func median(numbers []int) int {
-	if len(numbers) == 0 {
+func median(numbers *[]int) int {
+	if len(*numbers) == 0 {
 		return 0
 	}
 
-	sorted := make([]int, len(numbers))
-	copy(sorted, numbers)
+	sorted := make([]int, len(*numbers))
+	copy(sorted, *numbers)
 	sort.Ints(sorted)
 
 	mid := len(sorted) / 2
@@ -93,7 +93,7 @@ func median(numbers []int) int {
 	return sorted[mid]
 }
 
-func calculateOperation(operation string, numbers []int) int {
+func calculateOperation(operation string, numbers *[]int) int {
 	switch operation {
 	case "1":
 		return average(numbers)
