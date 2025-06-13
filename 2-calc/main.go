@@ -6,7 +6,17 @@ import (
 	"strings"
 )
 
+// Определяем тип функции для операций
+type OperationFunc func(*[]int) int
+
 func main() {
+	// Создаем map с функциями
+	operations := map[string]OperationFunc{
+		"1": average,
+		"2": sum,
+		"3": median,
+	}
+
 	for {
 		fmt.Println("Продвинутый калькулятор")
 
@@ -18,7 +28,7 @@ func main() {
 			continue
 		}
 
-		result := calculateOperation(operation, &numbers)
+		result := calculateOperation(operation, &numbers, &operations)
 		fmt.Println("Результат:", result)
 
 		fmt.Println("Вы хотите продолжить? (y/n)")
@@ -35,9 +45,9 @@ func operationInput() string {
 	var operation string
 
 	fmt.Println("Выберите операцию:")
-	fmt.Println("1. Среднее")
-	fmt.Println("2. Сумма")
-	fmt.Println("3. Медиана")
+	fmt.Println("1. Среднее (AVG)")
+	fmt.Println("2. Сумма (SUM)")
+	fmt.Println("3. Медиана (MED)")
 
 	fmt.Scanln(&operation)
 	return operation
@@ -93,16 +103,10 @@ func median(numbers *[]int) int {
 	return sorted[mid]
 }
 
-func calculateOperation(operation string, numbers *[]int) int {
-	switch operation {
-	case "1":
-		return average(numbers)
-	case "2":
-		return sum(numbers)
-	case "3":
-		return median(numbers)
-	default:
-		fmt.Println("Неверный выбор операции.")
-		return 0
+func calculateOperation(operation string, numbers *[]int, operations *map[string]OperationFunc) int {
+	if opFunc, exists := (*operations)[operation]; exists {
+		return opFunc(numbers)
 	}
+	fmt.Println("Неверный выбор операции.")
+	return 0
 }
