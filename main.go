@@ -6,30 +6,45 @@ import (
 	"strings"
 )
 
-// Определяем тип функции для операций
-type OperationFunc func(*[]int) int
+// Глобальные переменные для хранения данных
+var currentNumbers []int
+var currentResult int
 
 func main() {
-	// Создаем map с функциями
-	operations := map[string]OperationFunc{
-		"1": average,
-		"2": sum,
-		"3": median,
+	operations := map[string]func(){
+		"1":   calculateAverage,
+		"2":   calculateSum,
+		"3":   calculateMedian,
+		"4":   calculateMin,
+		"5":   calculateMax,
+		"avg": calculateAverage,
+		"sum": calculateSum,
+		"med": calculateMedian,
+		"min": calculateMin,
+		"max": calculateMax,
 	}
+
+	// Добавляем динамические операции с замыканиями
+	addDynamicOperations(operations)
 
 	for {
 		fmt.Println("Продвинутый калькулятор")
 
 		operation := operationInput()
-		numbers := intInput()
+		currentNumbers = intInput()
 
-		if len(numbers) == 0 {
+		if len(currentNumbers) == 0 {
 			fmt.Println("Вы не ввели ни одного числа.")
 			continue
 		}
 
-		result := calculateOperation(operation, &numbers, &operations)
-		fmt.Println("Результат:", result)
+		// Выполняем операцию через map
+		if operationFunc, exists := operations[operation]; exists {
+			operationFunc() // Вызываем функцию
+			fmt.Println("Результат:", currentResult)
+		} else {
+			fmt.Println("Неверный выбор операции.")
+		}
 
 		fmt.Println("Вы хотите продолжить? (y/n)")
 		var continueInput string
@@ -45,12 +60,16 @@ func operationInput() string {
 	var operation string
 
 	fmt.Println("Выберите операцию:")
-	fmt.Println("1. Среднее (AVG)")
-	fmt.Println("2. Сумма (SUM)")
-	fmt.Println("3. Медиана (MED)")
+	fmt.Println("1 или avg - Среднее (AVG)")
+	fmt.Println("2 или sum - Сумма (SUM)")
+	fmt.Println("3 или med - Медиана (MED)")
+	fmt.Println("4 или min - Минимум (MIN)")
+	fmt.Println("5 или max - Максимум (MAX)")
+	fmt.Println("pow2 - Возведение в квадрат всех чисел")
+	fmt.Println("count - Количество чисел")
 
 	fmt.Scanln(&operation)
-	return operation
+	return strings.ToLower(operation)
 }
 
 func intInput() []int {
@@ -72,41 +91,83 @@ func intInput() []int {
 	return numbers
 }
 
-func sum(numbers *[]int) int {
+// Функции-обработчики операций
+func calculateSum() {
 	total := 0
-	for _, n := range *numbers {
+	for _, n := range currentNumbers {
 		total += n
 	}
-	return total
+	currentResult = total
 }
 
-func average(numbers *[]int) int {
-	if len(*numbers) == 0 {
-		return 0
+func calculateAverage() {
+	if len(currentNumbers) == 0 {
+		currentResult = 0
+		return
 	}
-	return sum(numbers) / len(*numbers)
+	calculateSum() // Используем уже готовую функцию
+	currentResult = currentResult / len(currentNumbers)
 }
 
-func median(numbers *[]int) int {
-	if len(*numbers) == 0 {
-		return 0
+func calculateMedian() {
+	if len(currentNumbers) == 0 {
+		currentResult = 0
+		return
 	}
 
-	sorted := make([]int, len(*numbers))
-	copy(sorted, *numbers)
+	sorted := make([]int, len(currentNumbers))
+	copy(sorted, currentNumbers)
 	sort.Ints(sorted)
 
 	mid := len(sorted) / 2
 	if len(sorted)%2 == 0 {
-		return (sorted[mid-1] + sorted[mid]) / 2
+		currentResult = (sorted[mid-1] + sorted[mid]) / 2
+	} else {
+		currentResult = sorted[mid]
 	}
-	return sorted[mid]
 }
 
-func calculateOperation(operation string, numbers *[]int, operations *map[string]OperationFunc) int {
-	if opFunc, exists := (*operations)[operation]; exists {
-		return opFunc(numbers)
+func calculateMin() {
+	if len(currentNumbers) == 0 {
+		currentResult = 0
+		return
 	}
-	fmt.Println("Неверный выбор операции.")
-	return 0
+	min := currentNumbers[0]
+	for _, n := range currentNumbers {
+		if n < min {
+			min = n
+		}
+	}
+	currentResult = min
+}
+
+func calculateMax() {
+	if len(currentNumbers) == 0 {
+		currentResult = 0
+		return
+	}
+	max := currentNumbers[0]
+	for _, n := range currentNumbers {
+		if n > max {
+			max = n
+		}
+	}
+	currentResult = max
+}
+
+// Функция для добавления динамических операций с замыканиями
+func addDynamicOperations(operations map[string]func()) {
+	// Замыкание для возведения в квадрат
+	operations["pow2"] = func() {
+		total := 0
+		for _, n := range currentNumbers {
+			total += n * n
+		}
+		currentResult = total
+	}
+
+	// Замыкание для подсчета количества
+	operations["count"] = func() {
+		currentResult = len(currentNumbers)
+	}
 }
